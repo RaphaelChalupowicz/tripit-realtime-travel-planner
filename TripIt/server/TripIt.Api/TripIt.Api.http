@@ -1,0 +1,6 @@
+@TripIt.Api_HostAddress = http://localhost:5263
+
+GET {{TripIt.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
