@@ -57,12 +57,21 @@ tripit/
 │   │   └── store/
 │
 ├── server/                     # ASP.NET Core backend
-│   ├── Controllers/
-│   ├── Hubs/                   # SignalR hubs
-│   ├── Models/
-│   ├── Data/
-│   ├── Auth/
-│   └── Program.cs
+│   ├── TripIt.Api/
+│   │   ├── Features/           # Feature-based modules
+│   │   │   ├── Auth/           # Authentication (login/register/JWT)
+│   │   │   ├── Trips/          # Trip management
+│   │   │   ├── Itinerary/      # Days & activities
+│   │   │   ├── Collaboration/  # Participants & roles
+│   │   │   ├── Budget/         # Expenses tracking
+│   │   │   └── Realtime/       # SignalR logic (later phase)
+│   │   │
+│   │   ├── Models/             # Domain entities (User, Trip, etc.)
+│   │   ├── Data/               # DbContext and EF Core setup
+│   │   ├── Hubs/               # SignalR hubs
+│   │   ├── Infrastructure/     # JWT, utilities, cross-cutting concerns
+│   │   ├── Middleware/         # Custom middleware
+│   │   └── Program.cs          # Application entry point
 │
 └── README.md
 ```
