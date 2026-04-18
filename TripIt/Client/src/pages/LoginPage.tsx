@@ -15,6 +15,7 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useAuthStore } from "../features/auth/authStore";
+import { getErrorMessage } from "../lib/errors";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function LoginPage() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      setErrorMessage(`Failed to sign in. \n ${error}`);
+      setErrorMessage(getErrorMessage(error, "Failed to sign in."));
     }
   };
 
@@ -50,7 +51,10 @@ export default function LoginPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
+    <Container
+      maxWidth="sm"
+      sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}
+    >
       <Box sx={{ width: "100%" }}>
         <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
           Login
@@ -81,10 +85,16 @@ export default function LoginPage() {
                       type="button"
                       size="small"
                       edge="end"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
                       onClick={() => setShowPassword((value) => !value)}
                     >
-                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      {showPassword ? (
+                        <VisibilityOff fontSize="small" />
+                      ) : (
+                        <Visibility fontSize="small" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -92,7 +102,12 @@ export default function LoginPage() {
             }}
           />
 
-          <Button type="submit" variant="contained" disabled={isLoading} fullWidth>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isLoading}
+            fullWidth
+          >
             Sign in
           </Button>
         </Stack>

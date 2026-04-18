@@ -1,32 +1,42 @@
 import { useNavigate } from "react-router-dom";
 import {
+  Alert,
   Box,
   Button,
   Container,
   IconButton,
   Paper,
   Stack,
-  SvgIcon,
   Typography,
 } from "@mui/material";
+import LightMode from "@mui/icons-material/LightMode";
+import DarkMode from "@mui/icons-material/DarkMode";
 import { useAuthStore } from "../features/auth/authStore";
 import { useThemeMode } from "../app/ThemeModeProvider";
+import { getErrorMessage } from "../lib/errors";
+import { useState } from "react";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { appUser, signOut, deleteAccount, isLoading } = useAuthStore();
   const { mode, toggleMode } = useThemeMode();
+  const [actionError, setActionError] = useState("");
 
   const handleLogout = async () => {
+    setActionError("");
+
     try {
       await signOut();
       navigate("/login");
     } catch (error) {
       console.error(error);
+      setActionError(getErrorMessage(error, "Failed to sign out."));
     }
   };
 
   const handleDeleteAccount = async () => {
+    setActionError("");
+
     const confirmed = window.confirm(
       "Delete your account permanently? This will remove your auth account and local profile data.",
     );
@@ -40,7 +50,7 @@ export default function DashboardPage() {
       navigate("/login");
     } catch (error) {
       console.error(error);
-      window.alert("Failed to delete account.");
+      setActionError(getErrorMessage(error, "Failed to delete account."));
     }
   };
 
@@ -63,17 +73,15 @@ export default function DashboardPage() {
             mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
           }
         >
-          {mode === "dark" ? (
-            <SvgIcon>
-              <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.8 1.42-1.42zM1 13h3v-2H1v2zm10-9h2V1h-2v3zm7.45 1.46l-1.41-1.41-1.8 1.79 1.42 1.42 1.79-1.8zM17.24 19.16l1.8 1.79 1.41-1.41-1.79-1.8-1.42 1.42zM20 11v2h3v-2h-3zm-8 8h-2v3h2v-3zM5.34 17.66l-1.79 1.8 1.41 1.41 1.8-1.79-1.42-1.42zM12 6a6 6 0 100 12 6 6 0 000-12zm0 10a4 4 0 110-8 4 4 0 010 8z" />
-            </SvgIcon>
-          ) : (
-            <SvgIcon>
-              <path d="M9.37 5.51A7 7 0 0016.49 14 7 7 0 119.37 5.51z" />
-            </SvgIcon>
-          )}
+          {mode === "dark" ? <LightMode /> : <DarkMode />}
         </IconButton>
       </Stack>
+
+      {actionError && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {actionError}
+        </Alert>
+      )}
 
       <Paper variant="outlined" sx={{ mt: 3, p: 3 }}>
         <Typography>

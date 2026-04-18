@@ -13,6 +13,7 @@ import {
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../features/auth/authStore";
 import { uploadAvatarPng } from "../features/auth/avatarUpload.ts";
+import { getErrorMessage } from "../lib/errors";
 
 const COMPLETE_PROFILE_DRAFT_KEY = "tripit.complete-profile.draft";
 
@@ -247,7 +248,7 @@ export default function CompleteProfilePage() {
       setProfileImageUrl(uploadedUrl);
     } catch (err) {
       console.error(err);
-      setError(err instanceof Error ? err.message : "Failed to upload avatar.");
+      setError(getErrorMessage(err, "Failed to upload avatar."));
     } finally {
       setIsUploading(false);
     }
@@ -269,7 +270,7 @@ export default function CompleteProfilePage() {
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setError(`Failed to complete profile. \n ${err}`);
+      setError(getErrorMessage(err, "Failed to complete profile."));
     }
   };
 

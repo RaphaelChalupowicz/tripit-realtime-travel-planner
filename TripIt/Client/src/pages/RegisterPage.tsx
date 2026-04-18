@@ -15,6 +15,7 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useAuthStore } from "../features/auth/authStore";
+import { getErrorMessage } from "../lib/errors";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function RegisterPage() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      setErrorMessage(`Failed to register. \n ${error}`);
+      setErrorMessage(getErrorMessage(error, "Failed to register."));
     }
   };
 

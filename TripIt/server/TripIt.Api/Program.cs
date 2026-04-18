@@ -35,6 +35,12 @@ builder.Services.AddCors(options =>
 var supabaseIssuer = builder.Configuration["Supabase:JwtIssuer"];
 var supabaseAudience = builder.Configuration["Supabase:JwtAudience"];
 
+if (string.IsNullOrWhiteSpace(supabaseIssuer) || string.IsNullOrWhiteSpace(supabaseAudience))
+{
+    throw new InvalidOperationException(
+        "Supabase JWT settings are not configured. Set Supabase:JwtIssuer and Supabase:JwtAudience.");
+}
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -45,7 +51,6 @@ builder.Services
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
