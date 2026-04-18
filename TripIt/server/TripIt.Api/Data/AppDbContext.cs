@@ -19,6 +19,14 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(u => u.Id);
 
+            entity.Property(u => u.ExternalAuthId)
+                .HasMaxLength(255)
+                .IsRequired();
+
+            entity.Property(u => u.AuthProvider)
+                .HasMaxLength(50)
+                .IsRequired();
+
             entity.Property(u => u.Email)
                 .HasMaxLength(255)
                 .IsRequired();
@@ -34,16 +42,12 @@ public class AppDbContext : DbContext
             entity.Property(u => u.ProfileImageUrl)
                 .HasMaxLength(500);
 
-            entity.Property(u => u.PasswordHash);
-
-            entity.Property(u => u.AuthProvider)
-                .HasMaxLength(50)
+            entity.Property(u => u.IsAdmin)
+                .HasDefaultValue(false)
                 .IsRequired();
 
-            entity.Property(u => u.ProviderUserId)
-                .HasMaxLength(255);
-
-            entity.Property(u => u.IsEmailConfirmed)
+            entity.Property(u => u.IsOnboardingCompleted)
+                .HasDefaultValue(false)
                 .IsRequired();
 
             entity.Property(u => u.CreatedAt)
@@ -53,6 +57,9 @@ public class AppDbContext : DbContext
                 .IsRequired();
 
             entity.HasIndex(u => u.Email)
+                .IsUnique();
+
+            entity.HasIndex(u => u.ExternalAuthId)
                 .IsUnique();
         });
     }
