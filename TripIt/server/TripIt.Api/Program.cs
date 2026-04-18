@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using TripIt.Api.Data;
+using TripIt.Api.Features.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 const string FrontendCorsPolicy = "AllowFrontend";
@@ -42,6 +43,8 @@ builder.Services
         options.Audience = supabaseAudience;
     });
 
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
