@@ -9,7 +9,7 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <BrowserRouter>
         <Routes>
-          <Route path="/api" element={<HealthCheck />} />
+          <Route path="/health-check" element={<HealthCheck />} />
           <Route path="/" element={<Demo />} />
         </Routes>
       </BrowserRouter>
