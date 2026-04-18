@@ -1,19 +1,12 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import HealthCheck from "./pages/HealthCheck";
-import Demo from "./pages/demoPage";
+import AppRoutes from "./app/AppRouts";
+import AuthInitializer from "./app/AuthInitializer";
 
 function App() {
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/health-check" element={<HealthCheck />} />
-          <Route path="/" element={<Demo />} />
-        </Routes>
-      </BrowserRouter>
-    </LocalizationProvider>
+    <>
+      <AuthInitializer />
+      <AppRoutes />
+    </>
   );
 }
 
