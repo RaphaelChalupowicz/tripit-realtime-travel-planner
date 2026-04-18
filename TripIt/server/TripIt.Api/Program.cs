@@ -2,17 +2,26 @@ using Microsoft.EntityFrameworkCore;
 using TripIt.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+const string FrontendCorsPolicy = "AllowFrontend";
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' is not configured. " +
+        "Provide it via configuration, such as appsettings, user-secrets, or the " +
+        "'ConnectionStrings__DefaultConnection' environment variable.");
+}
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy(FrontendCorsPolicy, policy =>
     {
         policy
             .WithOrigins("http://localhost:8080")
@@ -29,8 +38,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
-app.UseCors("AllowFrontend");
+app.UseCors(FrontendCorsPolicy);
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
