@@ -30,6 +30,25 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
+    [HttpPut("auth/complete-profile")]
+    public async Task<ActionResult<CurrentUserDto>> CompleteProfile([FromBody] CompleteProfileRequestDto request)
+    {
+        try
+        {
+            var result = await _authService.CompleteProfileAsync(User, request);
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [Authorize]
     [HttpGet("auth/me")]
     public async Task<ActionResult<CurrentUserDto>> GetMe()
     {
@@ -41,6 +60,21 @@ public class AuthController : ControllerBase
                 return NotFound(new { message = "Authenticated user was not found in local database." });
 
             return Ok(user);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("auth/me")]
+    public async Task<IActionResult> DeleteMe()
+    {
+        try
+        {
+            await _authService.DeleteCurrentUserAsync(User);
+            return NoContent();
         }
         catch (UnauthorizedAccessException ex)
         {
