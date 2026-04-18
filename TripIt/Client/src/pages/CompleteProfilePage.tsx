@@ -77,12 +77,17 @@ function getGoogleProfileDefaults(
     (identityData?.last_name as string | undefined) ??
     "";
 
-  const [nameFromFullNameFirst = "", ...restNameParts] = fullName.trim().split(/\s+/);
-  const nameFromFullNameLast = restNameParts.length > 0 ? restNameParts.join(" ") : "";
+  const [nameFromFullNameFirst = "", ...restNameParts] = fullName
+    .trim()
+    .split(/\s+/);
+  const nameFromFullNameLast =
+    restNameParts.length > 0 ? restNameParts.join(" ") : "";
 
   return {
-    firstName: appUser?.firstName ?? googleGivenName ?? nameFromFullNameFirst ?? "",
-    lastName: appUser?.lastName ?? googleFamilyName ?? nameFromFullNameLast ?? "",
+    firstName:
+      appUser?.firstName ?? googleGivenName ?? nameFromFullNameFirst ?? "",
+    lastName:
+      appUser?.lastName ?? googleFamilyName ?? nameFromFullNameLast ?? "",
     profileImageUrl:
       appUser?.profileImageUrl ??
       (metadata?.avatar_url as string | undefined) ??
@@ -91,7 +96,10 @@ function getGoogleProfileDefaults(
   };
 }
 
-function getNameParts(displayName: string): { firstName: string; lastName: string } {
+function getNameParts(displayName: string): {
+  firstName: string;
+  lastName: string;
+} {
   const trimmedName = displayName.trim();
 
   if (!trimmedName) {
@@ -117,9 +125,13 @@ export default function CompleteProfilePage() {
   const defaults = getGoogleProfileDefaults(appUser, supabaseUser);
   const draft = readDraft();
 
-  const [firstName, setFirstName] = useState(draft.firstName ?? defaults.firstName);
+  const [firstName, setFirstName] = useState(
+    draft.firstName ?? defaults.firstName,
+  );
   const [lastName, setLastName] = useState(draft.lastName ?? defaults.lastName);
-  const [profileImageUrl, setProfileImageUrl] = useState(draft.profileImageUrl ?? defaults.profileImageUrl);
+  const [profileImageUrl, setProfileImageUrl] = useState(
+    draft.profileImageUrl ?? defaults.profileImageUrl,
+  );
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
@@ -135,12 +147,21 @@ export default function CompleteProfilePage() {
     if (!profileImageUrl && defaults.profileImageUrl) {
       setProfileImageUrl(defaults.profileImageUrl);
     }
-  }, [defaults.firstName, defaults.lastName, defaults.profileImageUrl, firstName, lastName, profileImageUrl]);
+  }, [
+    defaults.firstName,
+    defaults.lastName,
+    defaults.profileImageUrl,
+    firstName,
+    lastName,
+    profileImageUrl,
+  ]);
 
   useEffect(() => {
     setFirstName((currentValue) => currentValue || defaults.firstName);
     setLastName((currentValue) => currentValue || defaults.lastName);
-    setProfileImageUrl((currentValue) => currentValue || defaults.profileImageUrl);
+    setProfileImageUrl(
+      (currentValue) => currentValue || defaults.profileImageUrl,
+    );
   }, [defaults.firstName, defaults.lastName, defaults.profileImageUrl]);
 
   useEffect(() => {
@@ -162,7 +183,8 @@ export default function CompleteProfilePage() {
         (identityData?.name as string | undefined) ??
         "";
 
-      const { firstName: displayFirstName, lastName: displayLastName } = getNameParts(rawDisplayName);
+      const { firstName: displayFirstName, lastName: displayLastName } =
+        getNameParts(rawDisplayName);
 
       const firstNameFromAuth =
         (metadata?.given_name as string | undefined) ??
@@ -180,11 +202,12 @@ export default function CompleteProfilePage() {
 
       setFirstName((currentValue) => currentValue || firstNameFromAuth || "");
       setLastName((currentValue) => currentValue || lastNameFromAuth || "");
-      setProfileImageUrl((currentValue) =>
-        currentValue ||
-        (metadata?.avatar_url as string | undefined) ||
-        (metadata?.picture as string | undefined) ||
-        "",
+      setProfileImageUrl(
+        (currentValue) =>
+          currentValue ||
+          (metadata?.avatar_url as string | undefined) ||
+          (metadata?.picture as string | undefined) ||
+          "",
       );
     };
 
@@ -214,9 +237,7 @@ export default function CompleteProfilePage() {
       setProfileImageUrl(uploadedUrl);
     } catch (err) {
       console.error(err);
-      setError(
-        err instanceof Error ? err.message : "Failed to upload avatar.",
-      );
+      setError(err instanceof Error ? err.message : "Failed to upload avatar.");
     } finally {
       setIsUploading(false);
     }
@@ -238,7 +259,7 @@ export default function CompleteProfilePage() {
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setError("Failed to complete profile.");
+      setError(`Failed to complete profile. \n ${err}`);
     }
   };
 

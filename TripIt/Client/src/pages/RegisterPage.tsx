@@ -21,7 +21,7 @@ export default function RegisterPage() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      setErrorMessage("Failed to register.");
+      setErrorMessage(`Failed to register. \n ${error}`);
     }
   };
 
