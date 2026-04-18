@@ -12,7 +12,7 @@ using TripIt.Api.Data;
 namespace TripIt.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260418092542_UserRole")]
+    [Migration("20260418094123_UserRole")]
     partial class UserRole
     {
         /// <inheritdoc />
@@ -68,12 +68,12 @@ namespace TripIt.Api.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("role")
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

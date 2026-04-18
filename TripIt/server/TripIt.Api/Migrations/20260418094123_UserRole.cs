@@ -11,7 +11,7 @@ namespace TripIt.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "role",
+                name: "Role",
                 table: "Users",
                 type: "text",
                 nullable: false,
@@ -22,7 +22,7 @@ namespace TripIt.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "role",
+                name: "Role",
                 table: "Users");
         }
     }
