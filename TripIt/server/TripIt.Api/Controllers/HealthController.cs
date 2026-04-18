@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using TripIt.Api.Routing;
+using HttpMethods = TripIt.Api.Routing.HttpMethods;
 
 namespace TripIt.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
 public class HealthController : ControllerBase
 {
-    [HttpGet]
+    [HttpRequest("/Health", HttpMethods.Get)]
     public IActionResult Get()
     {
         return Ok(new
