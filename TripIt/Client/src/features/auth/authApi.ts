@@ -21,6 +21,14 @@ async function getAccessToken(): Promise<string> {
   return token;
 }
 
+async function getAccessTokenOrNull(): Promise<string | null> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
+}
+
 export async function syncUser(
   payload: SyncUserRequest = {},
 ): Promise<AppUser> {
@@ -62,7 +70,11 @@ export async function getCurrentUser(): Promise<AppUser> {
 }
 
 export async function deleteCurrentUser(): Promise<void> {
-  const token = await getAccessToken();
+  const token = await getAccessTokenOrNull();
+
+  if (!token) {
+    return;
+  }
 
   const response = await fetch(`${API_BASE_URL}/auth/me`, {
     method: "DELETE",
@@ -74,6 +86,22 @@ export async function deleteCurrentUser(): Promise<void> {
   if (!response.ok && response.status !== 404) {
     const errorText = await response.text();
     throw new Error(`Failed to delete current user: ${errorText}`);
+  }
+}
+
+export async function deleteAccount(): Promise<void> {
+  const token = await getAccessToken();
+
+  const response = await fetch(`${API_BASE_URL}/auth/account`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to delete account: ${errorText}`);
   }
 }
 

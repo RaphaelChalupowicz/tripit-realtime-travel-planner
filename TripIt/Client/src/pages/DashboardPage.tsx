@@ -3,7 +3,7 @@ import { useAuthStore } from "../features/auth/authStore";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { appUser, signOut, isLoading } = useAuthStore();
+  const { appUser, signOut, deleteAccount, isLoading } = useAuthStore();
 
   const handleLogout = async () => {
     try {
@@ -11,6 +11,24 @@ export default function DashboardPage() {
       navigate("/login");
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Delete your account permanently? This will remove your auth account and local profile data.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteAccount();
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+      window.alert("Failed to delete account.");
     }
   };
 
@@ -36,6 +54,14 @@ export default function DashboardPage() {
         disabled={isLoading}
       >
         Sign out
+      </button>
+
+      <button
+        onClick={handleDeleteAccount}
+        className="ml-3 mt-6 rounded bg-red-800 px-4 py-2 text-white"
+        disabled={isLoading}
+      >
+        Delete account
       </button>
     </div>
   );

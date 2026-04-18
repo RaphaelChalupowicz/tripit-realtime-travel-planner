@@ -81,4 +81,23 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = ex.Message });
         }
     }
+
+    [Authorize]
+    [HttpDelete("auth/account")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        try
+        {
+            await _authService.DeleteAccountAsync(User);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+    }
 }

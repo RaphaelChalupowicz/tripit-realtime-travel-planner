@@ -9,10 +9,20 @@ namespace TripIt.Api.Features.Auth;
 public class AuthService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IConfiguration _configuration;
 
-    public AuthService(AppDbContext dbContext)
+    public AuthService(AppDbContext dbContext, IConfiguration configuration)
     {
         _dbContext = dbContext;
+        _configuration = configuration;
+    }
+
+    public async Task DeleteAccountAsync(ClaimsPrincipal principal)
+    {
+        var externalAuthId = GetRequiredClaim(principal, "sub", ClaimTypes.NameIdentifier);
+
+        await DeleteSupabaseUserAsync(externalAuthId);
+        await DeleteLocalUserByExternalAuthIdAsync(externalAuthId);
     }
 
     public async Task<CurrentUserDto> SyncUserAsync(ClaimsPrincipal principal, SyncUserRequestDto request)
@@ -102,14 +112,7 @@ public class AuthService
     {
         var externalAuthId = GetRequiredClaim(principal, "sub", ClaimTypes.NameIdentifier);
 
-        var user = await _dbContext.Users
-            .FirstOrDefaultAsync(u => u.ExternalAuthId == externalAuthId);
-
-        if (user is null)
-            return;
-
-        _dbContext.Users.Remove(user);
-        await _dbContext.SaveChangesAsync();
+        await DeleteLocalUserByExternalAuthIdAsync(externalAuthId);
     }
 
     public async Task<CurrentUserDto> CompleteProfileAsync(
@@ -181,5 +184,87 @@ public class AuthService
         }
 
         return null;
+    }
+
+    private async Task DeleteLocalUserByExternalAuthIdAsync(string externalAuthId)
+    {
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.ExternalAuthId == externalAuthId);
+
+        if (user is null)
+            return;
+
+        _dbContext.Users.Remove(user);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task DeleteSupabaseUserAsync(string externalAuthId)
+    {
+        var supabaseUrl = _configuration["Supabase:Url"];
+        var serviceRoleKey = ResolveServiceRoleKey();
+
+        if (string.IsNullOrWhiteSpace(supabaseUrl) || string.IsNullOrWhiteSpace(serviceRoleKey))
+        {
+            throw new InvalidOperationException(
+                "Supabase account deletion is not configured. Set Supabase:Url and Supabase:ServiceRoleKey in configuration.");
+        }
+
+        using var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.Add("apikey", serviceRoleKey);
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", serviceRoleKey);
+
+        var requestUri = $"{supabaseUrl.TrimEnd('/')}/auth/v1/admin/users/{externalAuthId}";
+        var response = await httpClient.DeleteAsync(requestUri);
+
+        if (response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return;
+        }
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        throw new InvalidOperationException(
+            $"Failed to delete Supabase auth user. Status {(int)response.StatusCode}: {responseBody}");
+    }
+
+    private string? ResolveServiceRoleKey()
+    {
+        var candidates = new[]
+        {
+            _configuration["Supabase:ServiceRoleKey"],
+            _configuration["Supabase__ServiceRoleKey"],
+            _configuration["SUPABASE_SERVICE_ROLE_KEY"]
+        };
+
+        foreach (var candidate in candidates)
+        {
+            var normalized = NormalizeSecret(candidate);
+            if (string.IsNullOrWhiteSpace(normalized))
+                continue;
+
+            if (normalized.Contains("YOUR_SERVICE_ROLE_KEY", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "Supabase service role key is still set to a placeholder value. Configure a real service_role key.");
+            }
+
+            return normalized;
+        }
+
+        return null;
+    }
+
+    private static string? NormalizeSecret(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var trimmed = value.Trim();
+        if ((trimmed.StartsWith('"') && trimmed.EndsWith('"')) ||
+            (trimmed.StartsWith('\'') && trimmed.EndsWith('\'')))
+        {
+            trimmed = trimmed[1..^1].Trim();
+        }
+
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 }

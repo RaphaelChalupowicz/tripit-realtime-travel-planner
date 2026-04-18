@@ -19,7 +19,7 @@ export default function LoginPage() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      setErrorMessage("Failed to sign in.");
+      setErrorMessage(`Failed to sign in. \n ${error}`);
     }
   };
 

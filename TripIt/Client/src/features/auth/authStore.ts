@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "../../lib/supabase";
 import {
+  deleteAccount as deleteAccountApi,
   deleteCurrentUser,
   completeProfile as completeProfileApi,
   getCurrentUser,
@@ -31,6 +32,7 @@ type AuthStore = AuthState & {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   completeProfile: (payload: CompleteProfilePayload) => Promise<void>;
 };
 
@@ -231,6 +233,27 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       hasInitialized: true,
       isLoading: false,
     });
+  },
+
+  deleteAccount: async () => {
+    set({ isLoading: true });
+
+    try {
+      await deleteAccountApi();
+      await supabase.auth.signOut();
+
+      set({
+        session: null,
+        supabaseUser: null,
+        appUser: null,
+        isAuthenticated: false,
+        hasInitialized: true,
+        isLoading: false,
+      });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
+    }
   },
 
   completeProfile: async (payload: CompleteProfilePayload) => {

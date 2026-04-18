@@ -45,6 +45,7 @@ export default function RegisterPage() {
           className="w-full rounded border p-3"
           type="text"
           placeholder="First name"
+          required
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
         />
@@ -53,6 +54,7 @@ export default function RegisterPage() {
           className="w-full rounded border p-3"
           type="text"
           placeholder="Last name"
+          required
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
         />
@@ -61,6 +63,7 @@ export default function RegisterPage() {
           className="w-full rounded border p-3"
           type="email"
           placeholder="Email"
+          required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -69,6 +72,7 @@ export default function RegisterPage() {
           className="w-full rounded border p-3"
           type="password"
           placeholder="Password"
+          required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
