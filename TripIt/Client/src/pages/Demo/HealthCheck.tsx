@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getHealth } from "../services/healthService";
+import { getHealth } from "../../services/healthService";
 
 export default function HealthCheck() {
   const [message, setMessage] = useState<string>("Checking API...");
