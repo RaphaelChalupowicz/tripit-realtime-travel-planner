@@ -1,4 +1,4 @@
-# ✈️ TripIt — making trips should be easy!
+# ✈️ TripIt - making trips should be easy!
 
 A collaborative **Realtime travel planner** that lets users create trips, build tracks, track budgets, and collaborate with friends and family in **live shared workspaces**.
 
@@ -16,7 +16,7 @@ TripIt allows users to:
 4. Add locations on an interactive map
 5. Track notes and travel details
 6. Manage shared trip budget
-7. Collaborate in **Realtime** using SignalR
+7. Collaborate in **Realtime** using SignalR (planned)
 8. Assign roles (Owner / Editor / Viewer)
 9. Auto save and sync across devices
 10. Work on **desktop + mobile** seamlessly
@@ -57,12 +57,21 @@ tripit/
 │   │   └── store/
 │
 ├── server/                     # ASP.NET Core backend
-│   ├── Controllers/
-│   ├── Hubs/                   # SignalR hubs
-│   ├── Models/
-│   ├── Data/
-│   ├── Auth/
-│   └── Program.cs
+│   ├── TripIt.Api/
+│   │   ├── Features/           # Feature-based modules
+│   │   │   ├── Auth/           # Authentication (login/register/JWT)
+│   │   │   ├── Trips/          # Trip management
+│   │   │   ├── Itinerary/      # Days & activities
+│   │   │   ├── Collaboration/  # Participants & roles
+│   │   │   ├── Budget/         # Expenses tracking
+│   │   │   └── Realtime/       # SignalR logic (later phase)
+│   │   │
+│   │   ├── Models/             # Domain entities (User, Trip, etc.)
+│   │   ├── Data/               # DbContext and EF Core setup
+│   │   ├── Hubs/               # SignalR hubs
+│   │   ├── Infrastructure/     # JWT, utilities, cross-cutting concerns
+│   │   ├── Middleware/         # Custom middleware
+│   │   └── Program.cs          # Application entry point
 │
 └── README.md
 ```
@@ -166,11 +175,13 @@ user edit → API save → DB update → SignalR broadcast → UI refresh
 - ASP.NET Core (.NET 8)
 - SignalR
 - Entity Framework Core
-- JWT Authentication
+- Swagger
+- SignalR (planned)
+- JWT Authentication (planned)
 
 ## Database
 
-- Microsoft SQL Server
+- PostgreSQL
 - EF Core Migrations
 
 ---
@@ -185,7 +196,7 @@ Frontend:
 Backend:
 
 - .NET 8 SDK
-- Microsoft SQL Server
+- PostgreSQL
 
 ---
 
@@ -195,13 +206,13 @@ Backend:
 
 ```bash
 git clone https://github.com/RaphaelChalupowicz/tripit-realtime-travel-planner.git
-cd tripit
+cd tripit-realtime-travel-planner
 ```
 
 ## 2. Backend setup
 
 ```bash
-cd server
+cd TripIt/server/TripIt.Api
 dotnet restore
 dotnet ef database update
 dotnet run
@@ -216,7 +227,7 @@ http://localhost:5122
 ## 3. Frontend setup
 
 ```bash
-cd client
+cd TripIt/Client
 npm install
 npm run dev
 ```
@@ -224,19 +235,25 @@ npm run dev
 Client runs on:
 
 ```bash
-http://localhost:5173
+http://localhost:8080
+```
+
+Health check page:
+
+```bash
+http://localhost:8080/health-check
 ```
 
 ---
 
 # 🔐 Authentication
 
-## JWT based authentication:
+JWT endpoints below are planned, not implemented yet:
 
 - POST /auth/register
 - POST /auth/login
 
-Protected routes:
+Planned protected routes:
 
 - /trips
 - /trip/:id
@@ -246,11 +263,11 @@ Protected routes:
 
 # 📡 SignalR
 
-## Hub:
+## Hub (planned)
 
 - TripHub
 
-## Events:
+## Events (planned)
 
 - JoinTrip
 - LeaveTrip
@@ -272,12 +289,20 @@ Friend joins → sees updates live
 
 # 🗂️ Entities
 
-## User
+## User (implemented)
 
 - Id
+- Role
 - Email
+- FirstName
+- LastName
+- ProfileImageUrl
 - PasswordHash
+- AuthProvider
+- ProviderUserId
+- IsEmailConfirmed
 - CreatedAt
+- UpdatedAt
 
 ## Trip
 
