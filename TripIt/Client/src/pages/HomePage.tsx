@@ -1,11 +1,16 @@
 import { Navigate, Link } from "react-router-dom";
+import { Box, Button, Container, Grid, Paper, Stack, Typography } from "@mui/material";
 import { useAuthStore } from "../features/auth/authStore";
 
 export default function HomePage() {
   const { isLoading, isAuthenticated, appUser } = useAuthStore();
 
   if (isLoading) {
-    return <div className="p-6">Loading...</div>;
+    return (
+      <Container sx={{ py: 6 }}>
+        <Typography>Loading...</Typography>
+      </Container>
+    );
   }
 
   if (isAuthenticated && appUser) {
@@ -13,106 +18,118 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <header className="flex items-center justify-between px-6 py-4 shadow-sm">
-        <h1 className="text-2xl font-bold">TripIt</h1>
+    <Box sx={{ minHeight: "100vh" }}>
+      <Box
+        component="header"
+        sx={{
+          px: { xs: 2, md: 4 },
+          py: 2,
+          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Container maxWidth="lg" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+            TripIt
+          </Typography>
 
-        <div className="flex gap-3">
-          <Link to="/login" className="rounded border px-4 py-2">
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="rounded bg-black px-4 py-2 text-white"
-          >
-            Get Started
-          </Link>
-        </div>
-      </header>
+          <Stack direction="row" spacing={1.5}>
+            <Button component={Link} to="/login" variant="outlined">
+              Login
+            </Button>
+            <Button component={Link} to="/register" variant="contained">
+              Get Started
+            </Button>
+          </Stack>
+        </Container>
+      </Box>
 
-      <main className="mx-auto max-w-6xl px-6 py-16">
-        <section className="grid gap-10 md:grid-cols-2 md:items-center">
-          <div>
-            <h2 className="text-5xl font-bold leading-tight">
-              TripIt — making trips should be easy!
-            </h2>
-            <p className="mt-6 text-lg text-gray-600">
+      <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+        <Grid container spacing={5} sx={{ alignItems: "center" }}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Typography variant="h2" sx={{ fontWeight: 800, fontSize: { xs: "2.4rem", md: "3.5rem" } }}>
+              TripIt - making trips should be easy!
+            </Typography>
+            <Typography variant="h6" color="text.secondary" sx={{ mt: 3 }}>
               Plan trips visually, organize your itinerary, manage your budget,
               and collaborate with friends or family in real time.
-            </p>
+            </Typography>
 
-            <div className="mt-8 flex gap-4">
-              <Link
-                to="/register"
-                className="rounded bg-black px-5 py-3 text-white"
-              >
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 4 }}>
+              <Button component={Link} to="/register" variant="contained" size="large">
                 Start Planning
-              </Link>
-              <Link to="/login" className="rounded border px-5 py-3">
+              </Button>
+              <Button component={Link} to="/login" variant="outlined" size="large">
                 Login
-              </Link>
-            </div>
-          </div>
+              </Button>
+            </Stack>
+          </Grid>
 
-          <div className="rounded-2xl border p-8 shadow-sm">
-            <div className="space-y-4">
-              <div className="rounded-lg border p-4">
-                📍 Visual trip map with destinations
-              </div>
-              <div className="rounded-lg border p-4">
-                🗓️ Day-by-day itinerary builder
-              </div>
-              <div className="rounded-lg border p-4">
-                💸 Budget and expense tracking
-              </div>
-              <div className="rounded-lg border p-4">
-                👥 Share trips with editors or viewers
-              </div>
-            </div>
-          </div>
-        </section>
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Stack spacing={1.5}>
+                <Paper variant="outlined" sx={{ p: 2 }}>📍 Visual trip map with destinations</Paper>
+                <Paper variant="outlined" sx={{ p: 2 }}>🗓️ Day-by-day itinerary builder</Paper>
+                <Paper variant="outlined" sx={{ p: 2 }}>💸 Budget and expense tracking</Paper>
+                <Paper variant="outlined" sx={{ p: 2 }}>👥 Share trips with editors or viewers</Paper>
+              </Stack>
+            </Paper>
+          </Grid>
+        </Grid>
 
-        <section className="mt-24">
-          <h3 className="text-3xl font-bold">Why TripIt?</h3>
+        <Box sx={{ mt: 10 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            Why TripIt?
+          </Typography>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            <div className="rounded-2xl border p-6">
-              <h4 className="text-xl font-semibold">Collaborative</h4>
-              <p className="mt-3 text-gray-600">
-                Plan trips with friends and family in one shared workspace.
-              </p>
-            </div>
+          <Grid container spacing={2.5} sx={{ mt: 1 }}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper variant="outlined" sx={{ p: 3, height: "100%" }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Collaborative
+                </Typography>
+                <Typography color="text.secondary" sx={{ mt: 1.5 }}>
+                  Plan trips with friends and family in one shared workspace.
+                </Typography>
+              </Paper>
+            </Grid>
 
-            <div className="rounded-2xl border p-6">
-              <h4 className="text-xl font-semibold">Organized</h4>
-              <p className="mt-3 text-gray-600">
-                Keep maps, notes, itinerary, and budget together.
-              </p>
-            </div>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper variant="outlined" sx={{ p: 3, height: "100%" }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Organized
+                </Typography>
+                <Typography color="text.secondary" sx={{ mt: 1.5 }}>
+                  Keep maps, notes, itinerary, and budget together.
+                </Typography>
+              </Paper>
+            </Grid>
 
-            <div className="rounded-2xl border p-6">
-              <h4 className="text-xl font-semibold">Responsive</h4>
-              <p className="mt-3 text-gray-600">
-                Use it comfortably on desktop, tablet, or phone.
-              </p>
-            </div>
-          </div>
-        </section>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper variant="outlined" sx={{ p: 3, height: "100%" }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  Responsive
+                </Typography>
+                <Typography color="text.secondary" sx={{ mt: 1.5 }}>
+                  Use it comfortably on desktop, tablet, or phone.
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
 
-        <section className="mt-24 rounded-2xl bg-gray-100 p-10 text-center">
-          <h3 className="text-3xl font-bold">Start your next trip today</h3>
-          <p className="mt-4 text-gray-600">
+        <Paper variant="outlined" sx={{ mt: 10, p: { xs: 3, md: 5 }, textAlign: "center" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            Start your next trip today
+          </Typography>
+          <Typography color="text.secondary" sx={{ mt: 2 }}>
             Create a trip, invite collaborators, and keep everything in one
             place.
-          </p>
-          <Link
-            to="/register"
-            className="mt-6 inline-block rounded bg-black px-5 py-3 text-white"
-          >
+          </Typography>
+          <Button component={Link} to="/register" variant="contained" sx={{ mt: 3 }}>
             Create Free Account
-          </Link>
-        </section>
-      </main>
-    </div>
+          </Button>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
