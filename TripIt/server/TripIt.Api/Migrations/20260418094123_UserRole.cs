@@ -15,7 +15,7 @@ namespace TripIt.Api.Migrations
                 table: "Users",
                 type: "text",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "User");
         }
 
         /// <inheritdoc />
