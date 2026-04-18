@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { supabase } from "../lib/supabase";
 import { useAuthStore } from "../features/auth/authStore";
 import { uploadAvatarPng } from "../features/auth/avatarUpload.ts";
@@ -264,49 +274,66 @@ export default function CompleteProfilePage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <h1 className="mb-6 text-3xl font-bold">Complete your profile</h1>
+    <Container
+      maxWidth="sm"
+      sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}
+    >
+      <Box sx={{ width: "100%" }}>
+        <Typography variant="h4" sx={{ fontWeight: 700 }} gutterBottom>
+          Complete your profile
+        </Typography>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          className="w-full rounded border p-3"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First name"
-        />
-
-        <input
-          className="w-full rounded border p-3"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last name"
-        />
-
-        {profileImageUrl && (
-          <img
-            src={profileImageUrl}
-            alt="Profile preview"
-            className="h-24 w-24 rounded-full object-cover"
+        <Stack component="form" onSubmit={handleSubmit} spacing={2}>
+          <TextField
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            label="First name"
+            required
+            fullWidth
           />
+
+          <TextField
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            label="Last name"
+            required
+            fullWidth
+          />
+
+          {profileImageUrl && (
+            <Avatar
+              src={profileImageUrl}
+              alt="Profile preview"
+              sx={{ width: 96, height: 96 }}
+            />
+          )}
+
+          <Button variant="outlined" component="label" disabled={isUploading}>
+            {isUploading ? "Uploading avatar..." : "Upload PNG avatar"}
+            <input
+              type="file"
+              accept="image/png"
+              onChange={handleFileChange}
+              hidden
+            />
+          </Button>
+
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isLoading || isUploading}
+            fullWidth
+          >
+            Continue
+          </Button>
+        </Stack>
+
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
         )}
-
-        <input
-          type="file"
-          accept="image/png"
-          onChange={handleFileChange}
-          className="w-full rounded border p-3"
-        />
-
-        <button
-          type="submit"
-          className="w-full rounded bg-black p-3 text-white"
-          disabled={isLoading || isUploading}
-        >
-          {isUploading ? "Uploading..." : "Continue"}
-        </button>
-      </form>
-
-      {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
-    </div>
+      </Box>
+    </Container>
   );
 }
