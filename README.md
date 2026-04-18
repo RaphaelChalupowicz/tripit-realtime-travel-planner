@@ -313,15 +313,14 @@ Friend joins → sees updates live
 ## User (implemented)
 
 - Id
-- Role
+- ExternalAuthId
+- AuthProvider
 - Email
 - FirstName
 - LastName
 - ProfileImageUrl
-- PasswordHash
-- AuthProvider
-- ProviderUserId
-- IsEmailConfirmed
+- IsAdmin
+- IsOnboardingCompleted
 - CreatedAt
 - UpdatedAt
 
