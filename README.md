@@ -233,7 +233,7 @@ npm run dev
 Client runs on:
 
 ```bash
-http://localhost:5173
+http://localhost:8080
 ```
 
 ---
