@@ -2,7 +2,7 @@
 
 A collaborative **Realtime travel planner** that lets users create trips, build tracks, track budgets, and collaborate with friends and family in **live shared workspaces**.
 
-Built with **React + TypeScript** frontend and **.NET + SignalR** backend.
+Built with **React + TypeScript** frontend, **Supabase Auth**, and **.NET + SignalR** backend.
 
 ---
 
@@ -59,7 +59,7 @@ tripit/
 ├── server/                     # ASP.NET Core backend
 │   ├── TripIt.Api/
 │   │   ├── Features/           # Feature-based modules
-│   │   │   ├── Auth/           # Authentication (login/register/JWT)
+│   │   │   ├── Auth/           # Authentication integration (Supabase Auth)
 │   │   │   ├── Trips/          # Trip management
 │   │   │   ├── Itinerary/      # Days & activities
 │   │   │   ├── Collaboration/  # Participants & roles
@@ -165,6 +165,7 @@ user edit → API save → DB update → SignalR broadcast → UI refresh
 - Vite
 - Tailwind
 - React Router
+- Supabase Auth
 - TanStack Query
 - Zustand
 - React Leaflet
@@ -177,7 +178,11 @@ user edit → API save → DB update → SignalR broadcast → UI refresh
 - Entity Framework Core
 - Swagger
 - SignalR (planned)
-- JWT Authentication (planned)
+
+## Authentication
+
+- Supabase Auth (email/password and google auth provider via Supabase)
+- Frontend session handling through Supabase client
 
 ## Database
 
@@ -232,6 +237,14 @@ npm install
 npm run dev
 ```
 
+Create `TripIt/Client/.env.local` with:
+
+```bash
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<your-anon-public-key>
+VITE_API_BASE_URL=http://localhost:5122
+```
+
 Client runs on:
 
 ```bash
@@ -248,10 +261,18 @@ http://localhost:8080/health-check
 
 # 🔐 Authentication
 
-JWT endpoints below are planned, not implemented yet:
+Authentication is handled by **Supabase Auth**.
 
-- POST /auth/register
-- POST /auth/login
+Frontend authentication uses the Supabase client with:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Typical flow:
+
+- Sign up / sign in from frontend via Supabase Auth
+- Supabase manages user identity and sessions
+- Frontend sends authenticated requests to backend APIs as needed
 
 Planned protected routes:
 
@@ -292,15 +313,14 @@ Friend joins → sees updates live
 ## User (implemented)
 
 - Id
-- Role
+- ExternalAuthId
+- AuthProvider
 - Email
 - FirstName
 - LastName
 - ProfileImageUrl
-- PasswordHash
-- AuthProvider
-- ProviderUserId
-- IsEmailConfirmed
+- IsAdmin
+- IsOnboardingCompleted
 - CreatedAt
 - UpdatedAt
 
