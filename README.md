@@ -362,7 +362,7 @@ Friend joins → sees updates live
 
 ## ✅ V1
 
-- [ ] Auth
+- [x] Auth
 - [ ] Trips
 - [ ] Dashboard
 - [ ] Trip workspace
