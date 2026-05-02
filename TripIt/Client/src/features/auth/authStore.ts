@@ -129,10 +129,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             (supabaseUser.user_metadata?.first_name as string) ?? undefined,
           lastName:
             (supabaseUser.user_metadata?.last_name as string) ?? undefined,
-          profileImageUrl:
-            (supabaseUser.user_metadata?.avatar_url as string) ??
-            (supabaseUser.user_metadata?.picture as string) ??
-            undefined,
         });
 
         const appUser = await getCurrentUser();
