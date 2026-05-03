@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
-  Alert,
   Box,
   Button,
   Container,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Google from "@mui/icons-material/Google";
 import { useAuthStore } from "../features/auth/authStore";
 import { getErrorMessage } from "../lib/errors";
 
@@ -24,29 +25,34 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
 
     try {
       await signInWithEmail(email, password);
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      setErrorMessage(getErrorMessage(error, "Failed to sign in."));
+      const errorMsg = getErrorMessage(error, "Failed to sign in.");
+      await Swal.fire({
+        icon: "error",
+        title: "Sign in failed",
+        text: errorMsg,
+      });
     }
   };
 
   const handleGoogleLogin = async () => {
-    setErrorMessage("");
-
     try {
       await signInWithGoogle();
     } catch (error) {
       console.error(error);
-      setErrorMessage("Failed to sign in with Google.");
+      await Swal.fire({
+        icon: "error",
+        title: "Google sign in failed",
+        text: "Failed to sign in with Google.",
+      });
     }
   };
 
@@ -117,16 +123,17 @@ export default function LoginPage() {
           variant="outlined"
           disabled={isLoading}
           fullWidth
-          sx={{ mt: 2 }}
+          aria-label="Continue with Google"
+          title="Continue with Google"
+          sx={{
+            mt: 2,
+            minHeight: 48,
+            borderColor: "rgba(148, 163, 184, 0.45)",
+            color: "text.primary",
+          }}
         >
-          Continue with Google
+          <Google fontSize="small" />
         </Button>
-
-        {errorMessage && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
 
         <Typography variant="body2" sx={{ mt: 3 }}>
           Don&apos;t have an account?{" "}

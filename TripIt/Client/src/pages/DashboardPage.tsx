@@ -1,128 +1,38 @@
-import { useNavigate } from "react-router-dom";
-import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  IconButton,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
-import LightMode from "@mui/icons-material/LightMode";
-import DarkMode from "@mui/icons-material/DarkMode";
-import { useAuthStore } from "../features/auth/authStore";
+import { Box, Container, Typography } from "@mui/material";
 import { useThemeMode } from "../app/ThemeModeProvider";
-import { getErrorMessage } from "../lib/errors";
-import { useState } from "react";
 
 export default function DashboardPage() {
-  const navigate = useNavigate();
-  const { appUser, signOut, deleteAccount, isLoading } = useAuthStore();
-  const { mode, toggleMode } = useThemeMode();
-  const [actionError, setActionError] = useState("");
+  const { mode } = useThemeMode();
+  const isDarkMode = mode === "dark";
 
-  const handleLogout = async () => {
-    setActionError("");
-
-    try {
-      await signOut();
-      navigate("/login");
-    } catch (error) {
-      console.error(error);
-      setActionError(getErrorMessage(error, "Failed to sign out."));
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    setActionError("");
-
-    const confirmed = window.confirm(
-      "Delete your account permanently? This will remove your auth account and local profile data.",
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await deleteAccount();
-      navigate("/login");
-    } catch (error) {
-      console.error(error);
-      setActionError(getErrorMessage(error, "Failed to delete account."));
-    }
-  };
+  const background = isDarkMode
+    ? "radial-gradient(circle at top left, rgba(28, 100, 242, 0.16), transparent 32%), radial-gradient(circle at top right, rgba(15, 118, 110, 0.18), transparent 28%), linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98))"
+    : "radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28%), radial-gradient(circle at top right, rgba(14, 165, 233, 0.14), transparent 30%), linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)";
+  const textColor = isDarkMode ? "#f8fafc" : "#0f172a";
 
   return (
-    <Container sx={{ py: 4 }}>
-      <Stack
-        direction="row"
-        sx={{ alignItems: "center", justifyContent: "space-between" }}
-      >
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Dashboard
-        </Typography>
-
-        <IconButton
-          onClick={toggleMode}
-          aria-label={
-            mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
-          }
-          title={
-            mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
-          }
+    <Box
+      sx={{
+        minHeight: "100vh",
+        py: { xs: 2, md: 5 },
+        background,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Container maxWidth="md">
+        <Typography
+          variant="h2"
+          sx={{
+            fontWeight: 800,
+            textAlign: "center",
+            color: textColor,
+          }}
         >
-          {mode === "dark" ? <LightMode /> : <DarkMode />}
-        </IconButton>
-      </Stack>
-
-      {actionError && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {actionError}
-        </Alert>
-      )}
-
-      <Paper variant="outlined" sx={{ mt: 3, p: 3 }}>
-        <Typography>
-          <Box component="span" sx={{ fontWeight: 700 }}>
-            Name:
-          </Box>{" "}
-          {appUser?.firstName} {appUser?.lastName}
+          Hello World
         </Typography>
-        <Typography sx={{ mt: 1 }}>
-          <Box component="span" sx={{ fontWeight: 700 }}>
-            Email:
-          </Box>{" "}
-          {appUser?.email}
-        </Typography>
-        <Typography sx={{ mt: 1 }}>
-          <Box component="span" sx={{ fontWeight: 700 }}>
-            Admin:
-          </Box>{" "}
-          {appUser?.isAdmin ? "Yes" : "No"}
-        </Typography>
-      </Paper>
-
-      <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-        <Button
-          onClick={handleLogout}
-          color="warning"
-          variant="contained"
-          disabled={isLoading}
-        >
-          Sign out
-        </Button>
-
-        <Button
-          onClick={handleDeleteAccount}
-          color="error"
-          variant="contained"
-          disabled={isLoading}
-        >
-          Delete account
-        </Button>
-      </Stack>
-    </Container>
+      </Container>
+    </Box>
   );
 }

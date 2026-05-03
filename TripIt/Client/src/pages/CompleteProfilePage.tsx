@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
-  Alert,
   Avatar,
   Box,
   Button,
@@ -143,7 +143,6 @@ export default function CompleteProfilePage() {
   const [profileImageUrl, setProfileImageUrl] = useState(
     draft.profileImageUrl ?? defaults.profileImageUrl,
   );
-  const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -242,13 +241,17 @@ export default function CompleteProfilePage() {
     if (!file) return;
 
     try {
-      setError("");
       setIsUploading(true);
       const uploadedUrl = await uploadAvatarPng(file);
       setProfileImageUrl(uploadedUrl);
     } catch (err) {
       console.error(err);
-      setError(getErrorMessage(err, "Failed to upload avatar."));
+      const errorMsg = getErrorMessage(err, "Failed to upload avatar.");
+      await Swal.fire({
+        icon: "error",
+        title: "Upload failed",
+        text: errorMsg,
+      });
     } finally {
       setIsUploading(false);
     }
@@ -256,7 +259,6 @@ export default function CompleteProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     try {
       await completeProfile({
@@ -267,10 +269,23 @@ export default function CompleteProfilePage() {
 
       clearDraft();
 
+      await Swal.fire({
+        icon: "success",
+        title: "Profile completed",
+        text: "Your profile has been successfully completed.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setError(getErrorMessage(err, "Failed to complete profile."));
+      const errorMsg = getErrorMessage(err, "Failed to complete profile.");
+      await Swal.fire({
+        icon: "error",
+        title: "Profile completion failed",
+        text: errorMsg,
+      });
     }
   };
 
@@ -328,12 +343,6 @@ export default function CompleteProfilePage() {
             Continue
           </Button>
         </Stack>
-
-        {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
-            {error}
-          </Alert>
-        )}
       </Box>
     </Container>
   );
