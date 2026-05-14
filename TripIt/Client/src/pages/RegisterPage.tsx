@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import {
@@ -21,6 +21,7 @@ import { getErrorMessage } from "../lib/errors";
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { signUpWithEmail, signInWithGoogle, isLoading } = useAuthStore();
+  const { isAuthenticated, appUser, hasInitialized } = useAuthStore();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -57,6 +58,29 @@ export default function RegisterPage() {
       });
     }
   };
+
+  useEffect(() => {
+    if (!hasInitialized) return;
+
+    if (isAuthenticated && appUser) {
+      if (!appUser.isOnboardingCompleted) {
+        navigate("/complete-profile", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  }, [hasInitialized, isAuthenticated, appUser, navigate]);
+
+  if (!hasInitialized && isLoading) {
+    return (
+      <Container
+        maxWidth="sm"
+        sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}
+      >
+        <Box sx={{ width: "100%" }}>Loading...</Box>
+      </Container>
+    );
+  }
 
   return (
     <Container

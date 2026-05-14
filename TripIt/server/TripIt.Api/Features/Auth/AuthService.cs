@@ -28,7 +28,7 @@ public class AuthService
     public async Task<CurrentUserDto> SyncUserAsync(ClaimsPrincipal principal, SyncUserRequestDto request)
     {
         var externalAuthId = GetRequiredClaim(principal, "sub", ClaimTypes.NameIdentifier);
-        var email = GetRequiredClaim(principal, "email", ClaimTypes.Email);
+        var email = NormalizeEmail(GetRequiredClaim(principal, "email", ClaimTypes.Email));
 
         var firstNameFromToken =
             GetOptionalClaim(principal, "given_name") ??
@@ -53,21 +53,52 @@ public class AuthService
 
         if (user is null)
         {
-            user = new User
-            {
-                ExternalAuthId = externalAuthId,
-                AuthProvider = "Supabase",
-                Email = email,
-                FirstName = request.FirstName?.Trim() ?? firstNameFromToken ?? string.Empty,
-                LastName = request.LastName?.Trim() ?? lastNameFromToken ?? string.Empty,
-                ProfileImageUrl = request.ProfileImageUrl?.Trim() ?? pictureFromToken,
-                IsAdmin = false,
-                IsOnboardingCompleted = false,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+            var createdAt = DateTime.UtcNow;
+            var firstName = request.FirstName?.Trim() ?? firstNameFromToken ?? string.Empty;
+            var lastName = request.LastName?.Trim() ?? lastNameFromToken ?? string.Empty;
+            var profileImageUrl = request.ProfileImageUrl?.Trim() ?? pictureFromToken;
 
-            _dbContext.Users.Add(user);
+            await _dbContext.Database.ExecuteSqlInterpolatedAsync($$"""
+                INSERT INTO public."Users" (
+                    "Id",
+                    "AuthProvider",
+                    "CreatedAt",
+                    "Email",
+                    "ExternalAuthId",
+                    "FirstName",
+                    "LastName",
+                    "ProfileImageUrl",
+                    "IsAdmin",
+                    "IsOnboardingCompleted",
+                    "UpdatedAt"
+                )
+                VALUES (
+                    {{Guid.NewGuid()}},
+                    {{"Supabase"}},
+                    {{createdAt}},
+                    {{email}},
+                    {{externalAuthId}},
+                    {{firstName}},
+                    {{lastName}},
+                    {{profileImageUrl}},
+                    {{false}},
+                    {{false}},
+                    {{createdAt}}
+                )
+                ON CONFLICT ("ExternalAuthId") DO UPDATE SET
+                    "Email" = EXCLUDED."Email",
+                    "AuthProvider" = EXCLUDED."AuthProvider",
+                    "FirstName" = EXCLUDED."FirstName",
+                    "LastName" = EXCLUDED."LastName",
+                    "ProfileImageUrl" = EXCLUDED."ProfileImageUrl",
+                    "UpdatedAt" = EXCLUDED."UpdatedAt";
+                """
+            );
+
+            user = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.ExternalAuthId == externalAuthId || u.Email == email)
+                ?? throw new InvalidOperationException("User upsert succeeded but the user could not be reloaded.");
         }
         else
         {
@@ -91,9 +122,10 @@ public class AuthService
                 user.ProfileImageUrl = pictureFromToken;
 
             user.UpdatedAt = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
         }
 
-        await _dbContext.SaveChangesAsync();
         return MapToDto(user);
     }
 
@@ -184,6 +216,11 @@ public class AuthService
         }
 
         return null;
+    }
+
+    private static string NormalizeEmail(string email)
+    {
+        return email.Trim().ToLowerInvariant();
     }
 
     private async Task DeleteLocalUserByExternalAuthIdAsync(string externalAuthId)

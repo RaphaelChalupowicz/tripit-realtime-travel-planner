@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import {
@@ -21,6 +21,7 @@ import { getErrorMessage } from "../lib/errors";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signInWithEmail, signInWithGoogle, isLoading } = useAuthStore();
+  const { isAuthenticated, appUser, hasInitialized } = useAuthStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,6 +56,30 @@ export default function LoginPage() {
       });
     }
   };
+
+  useEffect(() => {
+    // If auth has initialized and user is authenticated, redirect away from login/register pages
+    if (!hasInitialized) return;
+
+    if (isAuthenticated && appUser) {
+      if (!appUser.isOnboardingCompleted) {
+        navigate("/complete-profile", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  }, [hasInitialized, isAuthenticated, appUser, navigate]);
+
+  if (!hasInitialized && isLoading) {
+    return (
+      <Container
+        maxWidth="sm"
+        sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}
+      >
+        <Box sx={{ width: "100%" }}>Loading...</Box>
+      </Container>
+    );
+  }
 
   return (
     <Container
