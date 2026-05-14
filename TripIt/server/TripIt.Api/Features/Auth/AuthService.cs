@@ -85,8 +85,8 @@ public class AuthService
                     {{false}},
                     {{createdAt}}
                 )
-                ON CONFLICT ("Email") DO UPDATE SET
-                    "ExternalAuthId" = EXCLUDED."ExternalAuthId",
+                ON CONFLICT ("ExternalAuthId") DO UPDATE SET
+                    "Email" = EXCLUDED."Email",
                     "AuthProvider" = EXCLUDED."AuthProvider",
                     "FirstName" = EXCLUDED."FirstName",
                     "LastName" = EXCLUDED."LastName",

@@ -69,7 +69,7 @@ tripit/
 │   │   ├── Models/             # Domain entities (User, Trip, etc.)
 │   │   ├── Data/               # DbContext and EF Core setup
 │   │   ├── Hubs/               # SignalR hubs
-│   │   ├── Infrastructure/     # JWT, utilities, cross-cutting concerns
+│   │   ├── Infrastructure/     # JWT, utilities, cross cutting concerns
 │   │   ├── Middleware/         # Custom middleware
 │   │   └── Program.cs          # Application entry point
 │
@@ -189,6 +189,33 @@ user edit → API save → DB update → SignalR broadcast → UI refresh
 - PostgreSQL
 - EF Core Migrations
 
+## Database strategy (Cloud-primary + local cache)
+
+This project treats the cloud database as the single source of truth (Supabase/Postgres). The frontend keeps a minimal local cache of the current `AppUser` (in `localStorage`) to improve UX while the client syncs with the server on signin.
+
+Developer notes:
+
+- When a user signs in the client will always attempt to fetch the canonical `Users` row from the server. A short lived cache (5 minute TTL) is used to show the user's onboarding state while the remote call completes.
+- Avoid keeping a separate persistent local DB copy of the `Users` table. If you need local offline-first features later, prefer IndexedDB and design a sync reconciliation strategy.
+- If you accidentally drop the server local table, the server will recreate or upsert the user during sync; note this will set `IsOnboardingCompleted` to `false` on a fresh insert. To avoid losing important flags, keep backups and enable migrations.
+
+Recommended developer workflow:
+
+1. Configure Supabase credentials in `TripIt/Client/.env.local` and server config.
+2. Run EF Core migrations and enable DB backups for the server Postgres used in development:
+
+```bash
+cd TripIt/server/TripIt.Api
+dotnet ef database update
+dotnet run
+```
+
+3. Run the frontend and sign in. The client will cache `AppUser` in `localStorage` under the `appUserCache` key for a short TTL to improve routing decisions while syncing.
+
+4. If you decide to migrate the server Postgres to Supabase Postgres (so Supabase Auth + Supabase Postgres are unified).
+
+5. For production, prefer hosting the canonical Postgres (Supabase DB) and restrict server side local only persistence to transient caches only.
+
 ---
 
 # 📋 Requirements
@@ -228,6 +255,26 @@ Server runs on:
 ```bash
 http://localhost:5122
 ```
+
+Security and secrets
+
+- Do NOT commit database passwords or service role keys to source control. Remove any real credentials from `appsettings.*.json` before committing.
+- For local development prefer `dotnet user-secrets`:
+
+```powershell
+cd TripIt/server/TripIt.Api
+# set the connection string for this project (keeps secrets out of repo)
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=db.<project-ref>.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=<password>;SSL Mode=Require;Trust Server Certificate=true" --project TripIt.Api.csproj
+```
+
+Or set a process env var in your terminal for one-off runs:
+
+```powershell
+$env:SUPABASE_PG_CONN = "Host=db.<project-ref>.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=<password>;SSL Mode=Require;Trust Server Certificate=true"
+dotnet run
+```
+
+If you use the included migration scripts, they are located at `TripIt/server/TripIt.Api/tools/` and are intended as operational helpers sanitize any examples before use.
 
 ## 3. Frontend setup
 

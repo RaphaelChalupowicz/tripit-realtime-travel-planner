@@ -61,10 +61,25 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       isAuthenticated: !!session && !!supabaseUser,
     }),
 
-  setAppUser: (appUser) =>
+  setAppUser: (appUser) => {
     set({
       appUser,
-    }),
+    });
+
+    try {
+      if (appUser) {
+        const cache = {
+          appUser,
+          lastSyncAt: Date.now(),
+        };
+        localStorage.setItem("appUserCache", JSON.stringify(cache));
+      } else {
+        localStorage.removeItem("appUserCache");
+      }
+    } catch (e) {
+      console.warn("Failed to write appUser cache:", e);
+    }
+  },
 
   initializeAuth: async () => {
     if (initPromise) return initPromise;
@@ -123,6 +138,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           supabaseUser,
           isAuthenticated: !!session && !!supabaseUser,
         });
+
+        // Try to read cached app user for faster UX while we sync with server.
+        try {
+          const raw = localStorage.getItem("appUserCache");
+          if (raw) {
+            const parsed = JSON.parse(raw) as { appUser: AppUser; lastSyncAt: number };
+            const TTL = 5 * 60 * 1000; // 5 minutes
+            if (parsed?.appUser && parsed?.lastSyncAt && Date.now() - parsed.lastSyncAt < TTL) {
+              set({ appUser: parsed.appUser });
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to read appUser cache:", e);
+        }
 
         await syncUser({
           firstName:
